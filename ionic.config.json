@@ -1,0 +1,7 @@
+{
+  "name": "Demo Ionic",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
