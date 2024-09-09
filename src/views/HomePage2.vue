@@ -1,6 +1,12 @@
 <template>
-    <ion-modal :is-open="open" @willDismiss="close">
-        <ion-content id="cameraPreviewContent" :fullscreen="true">
+    <ion-page>
+        <ion-header :translucent="true">
+            <ion-toolbar>
+                <ion-title>Demo</ion-title>
+            </ion-toolbar>
+        </ion-header>
+
+        <ion-content class="custom-content" id="cameraPreviewContent">
             <div v-if="previewLoaded">
                 <div v-if="cameraActive">
                     <div
@@ -36,7 +42,6 @@
                         color="danger"
                         expand="block"
                         id="cancel"
-                        @click="cancel"
                     >
                         <ion-icon
                             slot="icon-only"
@@ -50,21 +55,17 @@
                 </div>
             </div>
         </ion-content>
-    </ion-modal>
+    </ion-page>
 </template>
 
 <script setup lang="ts">
-import {
-    IonContent,
-    IonModal,
-    IonButton,
-    IonIcon,
-} from '@ionic/vue'
-import {checkmark, closeOutline, repeat} from 'ionicons/icons'
-import {computed, ref, watch} from 'vue'
-import { useCameraPreview } from '@/composables/useCameraPreview'
-import { Capacitor } from '@capacitor/core'
-import { useToast } from '@/composables/useToast'
+import {IonButton, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, onIonViewWillEnter} from '@ionic/vue';
+import {computed, ref} from "vue";
+import {checkmark, closeOutline, repeat} from "ionicons/icons";
+import {useToast} from "@/composables/useToast";
+import {Capacitor} from "@capacitor/core";
+import {Filesystem} from "@capacitor/filesystem";
+import {useCameraPreview} from "@/composables/useCameraPreview";
 
 const {
     launchCameraPreview,
@@ -74,32 +75,16 @@ const {
     flipCamera,
 } = useCameraPreview()
 
-const props = defineProps({
-    open: {
-        type: Boolean,
-        default: false,
-    },
-})
-
-const emit = defineEmits(['close'])
-
-watch(
-    () => props.open,
-    async (open) => {
-        if (open) {
-            await launchCamera()
-        } else {
-            resetPreview()
-        }
-    },
-)
-
 const previewLoaded = ref(false)
 const cameraActive = ref(false)
 const videoRecording = ref(false)
 const recordTimeInterval = ref<any | null>(null)
 const timer = ref(0)
 const videoPath = ref<string | null>(null)
+
+onIonViewWillEnter(async () => {
+    await launchCamera()
+})
 
 const formattedTimer = computed(() => {
     const hours = Math.floor(
@@ -129,6 +114,14 @@ async function stopCamera() {
 
         console.log(res.videoFilePath)
         videoPath.value = res.videoFilePath
+
+        const file = await Filesystem.stat({
+            path: res.videoFilePath,
+        }).catch((err) => {
+            console.error(err)
+        })
+
+        console.log(file)
 
         videoRecording.value = false
     }
@@ -175,24 +168,20 @@ function startRecordTimer() {
     recordTimeInterval.value = setInterval(() => (timer.value += 1000), 1000)
 }
 
-function resetPreview() {
-    previewLoaded.value = false
-    timer.value = 0
-}
+// function resetPreview() {
+//     previewLoaded.value = false
+//     timer.value = 0
+// }
 
 async function close() {
     await stopCamera()
-    emit('close')
-}
-
-function cancel() {
-    console.log('cancel')
 }
 </script>
 
-<style scoped>
-ion-content {
-    --background: transparent;
+<style>
+body { background: transparent !important; }
+.custom-content {
+    --background: transparent !important;
 }
 
 #timer {
@@ -273,5 +262,14 @@ ion-content {
 #flip::part(native),
 #accept::part(native) {
     border-radius: 30px;
+}
+
+#container {
+    text-align: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 </style>

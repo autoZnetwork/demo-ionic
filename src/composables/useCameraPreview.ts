@@ -23,13 +23,6 @@ export function useCameraPreview() {
     }
 
     const startRecording = async () => {
-        // const cameraPreviewOptions: CameraPreviewOptions = {
-        //     parent: element,
-        //     width: window.innerWidth,
-        //     height: window.innerHeight - 150,
-        //     toBack: true,
-        // }
-
         await CameraPreview.startRecordVideo({})
     }
 

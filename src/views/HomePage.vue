@@ -10,12 +10,12 @@
             <div id="container">
                 <ion-button @click="videoPreviewModalOpen = true">Start</ion-button>
             </div>
-        </ion-content>
 
-        <VideoPreviewModal
-            :open="videoPreviewModalOpen"
-            @close="videoPreviewModalOpen = false"
-        />
+            <VideoPreviewModal
+                :open="videoPreviewModalOpen"
+                @close="videoPreviewModalOpen = false"
+            />
+        </ion-content>
     </ion-page>
 </template>
 
